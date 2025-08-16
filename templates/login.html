@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login Tamu - Salimatun & Muktiono</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f0f2f5, #cfe0fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 2.5rem;
+      border-radius: 14px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      animation: popUp 0.6s ease;
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.9em;
+      margin: 0.6em 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #668cff;
+      box-shadow: 0 0 0 3px rgba(102, 140, 255, 0.2);
+    }
+
+    button {
+      margin-top: 1em;
+      width: 100%;
+      padding: 0.9em;
+      background: #001eff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #2e3ecf;
+    }
+
+    .message {
+      margin-top: 1em;
+      color: #d60000;
+      font-weight: 500;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popUp {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Login Wedding</h2>
+    <h5>Salimatun Hasanah 🤍 Muktiono Nugroho</h5>
+    <form method="POST">
+    <input type="text" name="username" placeholder="Username" required />
+            <div class="password-wrapper" style="position: relative;">
+    <input type="password" id="password" name="password" placeholder="Password" required style="width: 100%; padding-right: 40px;" />
+   <span onclick="togglePassword()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+    👁️
+    </span>
+  </div>
+      <button type="submit">Masuk</button>
+    </form>
+    {% if message %}
+      <div class="message">{{ message }}</div>
+    {% endif %}
+  </div>
+</body>
+</html>
+
+<script>
+function togglePassword() {
+  const passwordInput = document.getElementById("password");
+  const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+  passwordInput.setAttribute("type", type);
+}
+</script>

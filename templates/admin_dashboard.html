@@ -1,0 +1,102 @@
+<!-- templates/admin_dashboard.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
+</head>
+<body class="bg-light">
+
+  <div class="container mt-5">
+    <h3 class="mb-4">Admin: Data Presensi Tamu Pernikahan</h3>
+
+    <form class="row g-2 mb-4" method="POST" action="{{ url_for('admin_add') }}">
+      <div class="col-auto">
+        <input type="text" name="kode" class="form-control" placeholder="Kode Baru" required>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Tambah Kode</button>
+      </div>
+    </form>
+
+    <table id="tabel-presensi" class="table table-striped table-bordered nowrap" style="width:100%">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Kode</th>
+          <th>Sudah?</th>
+          <th>Dipakai Oleh</th>
+          <th>Waktu</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in data %}
+        <tr>
+          <td>{{ row.id }}</td>
+          <td>{{ row.kode }}</td>
+          <td>{{ '✅' if row.sudah_dipakai else '❌' }}</td>
+          <td>{{ row.dipakai_oleh or '-' }}</td>
+          <td>{{ row.waktu or '-' }}</td>
+          <td>
+            <a href="{{ url_for('admin_edit', id=row.id) }}" class="btn btn-sm btn-warning">Edit</a>
+            <a href="{{ url_for('admin_delete', id=row.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin hapus?')">Hapus</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="row mt-4">
+      <div class="col-md-3">
+        <div class="alert alert-primary">Total Kode: <strong>{{ total }}</strong></div>
+      </div>
+      <div class="col-md-3">
+        <div class="alert alert-success">Sudah Presensi: <strong>{{ hadir }}</strong></div>
+      </div>
+      <div class="col-md-3">
+        <div class="alert alert-warning">Unik Pengguna: <strong>{{ unik_pengguna }}</strong></div>
+      </div>
+      <div class="col-md-3">
+        <div class="alert alert-secondary">Waktu Terakhir: <strong>{{ waktu_terakhir or "-" }}</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- jQuery & DataTables JS -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+
+  <!-- DataTables Init -->
+  <script>
+    $(document).ready(function () {
+      $('#tabel-presensi').DataTable({
+        responsive: true,
+        order: [[0, 'asc']], // default urut berdasarkan ID
+        language: {
+          search: "Cari:",
+          lengthMenu: "Tampilkan _MENU_ entri",
+          info: "Menampilkan _START_ - _END_ dari _TOTAL_ entri",
+          paginate: {
+            next: "Berikutnya",
+            previous: "Sebelumnya"
+          }
+        },
+        columnDefs: [
+          { targets: 4, type: "date" }  // pastikan kolom waktu bisa diurutkan dengan benar
+        ]
+      });
+    });
+  </script>
+
+</body>
+</html>

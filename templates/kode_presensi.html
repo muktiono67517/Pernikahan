@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Presensi Tamu - Salimatun & Muktiono</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #f9f9f9, #eaeaea);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .card {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 14px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.07);
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.3em;
+      color: #222;
+    }
+
+    h2 {
+      font-size: 1rem;
+      margin-bottom: 1.8rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.8em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 1em;
+    }
+
+    button {
+      background-color: #222;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75em;
+      width: 100%;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #000;
+    }
+
+    .message {
+      margin-top: 1.5em;
+      padding: 0.75em;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .success {
+      background-color: #e0f7e9;
+      color: #2e7d32;
+      border: 1px solid #2e7d32;
+    }
+
+    .warning {
+      background-color: #fff9e5;
+      color: #a07600;
+      border: 1px solid #a07600;
+    }
+
+    .error {
+      background-color: #ffeaea;
+      color: #c62828;
+      border: 1px solid #c62828;
+    }
+
+    .logout {
+      margin-top: 2em;
+      display: inline-block;
+      font-size: 0.9rem;
+      color: #555;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Presensi Tamu</h1><br>
+    <h2>Salimatun Hasanah 🤍 Muktiono Nugroho</h2>
+
+    <h2>Halo, {{username}}</h2>
+
+    <form method="POST">
+      <input type="text" name="kode" placeholder="Masukkan Kode (misalnya: MK-AABB00)" required>
+      <button type="submit">Kirim Presensi</button>
+    </form>
+
+    {% if message %}
+      <div class="message {{ message_type }}">{{ message }}</div>
+    {% endif %}
+
+    <a href="{{ url_for('logout') }}" class="logout">Keluar</a>
+  </div>
+</body>
+</html>
