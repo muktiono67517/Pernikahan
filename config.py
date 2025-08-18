@@ -7,8 +7,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'ini_secret_key_default')
 
 MYSQL_CONFIG = {
     'host': '127.0.0.1',      # atau 'localhost'
-    'port': 3306,             # port default MySQL
-    'user': 'root',           # ganti dengan username MySQL-mu
-    'password': '',  # ganti dengan password MySQL-mu
+    'user': 'mukti',           # ganti dengan username MySQL-mu
+    'password': 'pernikahan2028',  # ganti dengan password MySQL-mu
     'database': 'pernikahan' # ganti dengan nama database yang kamu pakai
 }
