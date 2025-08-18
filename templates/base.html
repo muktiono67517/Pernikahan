@@ -1,0 +1,159 @@
+{% include 'header.html' %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Istri 🤍 Muktiono - Wedding Feed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --light: #fafafa;
+      --text: #262626;
+      --accent: #3897f0;
+      --fade: #8e8e8e;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--light);
+      color: var(--text);
+      padding-bottom: 80px;
+    }
+
+    section {
+      display: none;
+      padding: 2rem 1rem;
+      animation: fadeIn 0.4s ease;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    .card, .post {
+      background: var(--bg);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .caption span {
+      font-size: 0.8rem;
+      color: var(--fade);
+      margin-top: 0.5rem;
+      display: block;
+    }
+
+    nav.bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-around;
+      padding: 0.5rem 0;
+      z-index: 99;
+    }
+
+    nav.bottom-bar a {
+      text-decoration: none;
+      color: #262626;
+      font-size: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-weight: 500;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+
+    nav.bottom-bar a small {
+      font-size: 0.65rem;
+      color: #8e8e8e;
+      margin-top: 0.15rem;
+    }
+
+    nav.bottom-bar a.active {
+      color: var(--accent);
+    }
+
+    nav.bottom-bar a.active small {
+      color: var(--accent);
+    }
+
+    nav.bottom-bar a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-bar">
+  <a href="#home" class="nav-link active">🏠<small>Beranda</small></a>
+  <a href="#lokasi" class="nav-link">📍<small>Lokasi</small></a>
+  <a href="#galeri" class="nav-link">📸<small>Galeri</small></a>
+  <a href="#presensi" class="nav-link">📝<small>Presensi</small></a>
+  <a href="#ucapan" class="nav-link">💬<small>Ucapan</small></a>
+  <a href="{{ url_for('logout') }}" >🚪⬅️ <small>Logout</small></a>
+
+
+</nav>
+
+<!-- All Sections (Initially Hidden Except 'home') -->
+<section id="home" class="active">{% include "home.html" %}</section>
+<section id="lokasi">{% include "lokasi.html" %}</section>
+<section id="galeri">{% include "galeri.html" %}</section>
+<section id="presensi">{% include "presensi.html" %}</section>
+<section id="ucapan">{% include "ucapan.html" %}</section>
+
+<!-- Tab Navigation Script -->
+<script>
+  const navLinks = document.querySelectorAll('.bottom-bar .nav-link');
+  const sections = document.querySelectorAll('section');
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+
+      // Aktifkan link
+      navLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      // Tampilkan section sesuai href
+      const targetId = link.getAttribute('href').substring(1);
+      sections.forEach(sec => {
+        sec.classList.remove('active');
+        if (sec.id === targetId) sec.classList.add('active');
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

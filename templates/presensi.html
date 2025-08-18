@@ -1,0 +1,122 @@
+<div class="card">
+  <h3>Presensi Tamu</h1><br>
+
+  <form id="formPresensi">
+    <input type="text" name="kode" placeholder="Misal: MN-AABB00" required />
+    <button type="submit">Kirim Presensi</button>
+  </form>
+
+  <!-- INI HARUS TUNGGAL -->
+  <div id="presensi-result">
+    {% if message %}
+      <div class="message {{ message_type }}">{{ message }}</div>
+    {% endif %}
+  </div>
+</div>
+
+
+
+<style>
+  .card {
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    margin: 2rem auto;
+  }
+
+  .username {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 0.85em;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    background-color: #fafafa;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #a5b4fc;
+    box-shadow: 0 0 0 2px rgba(102,140,255,0.2);
+  }
+
+  button {
+    width: 100%;
+    padding: 0.85em;
+    background: #3897f0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  button:hover {
+    background: #318ce7;
+  }
+
+  .message {
+    margin-top: 1.5rem;
+    padding: 0.9em;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #2e7d32;
+  }
+
+  .warning {
+    background-color: #fff8e1;
+    color: #a07600;
+    border: 1px solid #a07600;
+  }
+
+  .error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #c62828;
+  }
+</style>
+
+<script>
+  document.getElementById('formPresensi').addEventListener('submit', async function (e) {
+    e.preventDefault();  // Cegah reload halaman
+
+    const kode = this.kode.value;
+
+    const response = await fetch('{{ url_for("presensi") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({ kode })
+    });
+
+    const html = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const result = doc.getElementById('presensi-result');
+    document.getElementById('presensi-result').innerHTML = result ? result.innerHTML : '<div class="message error">Gagal memuat hasil.</div>';
+
+    this.reset(); // kosongkan form
+  });
+</script>
+

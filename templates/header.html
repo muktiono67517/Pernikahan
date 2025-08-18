@@ -1,0 +1,71 @@
+<!-- header.html -->
+<header class="hero-header">
+  <div class="hero-content">
+    <div class="icon-wrap">💍</div>
+    <h1 class="hero-title"> Istri 🤍 Muktiono Nugroho</h1>
+    <p class="hero-sub">Selamat datang, <span class="guest-name">{{ session['username'] }}</span></p>
+  </div>
+</header>
+
+<style>
+  .hero-header {
+    position: relative;
+    background: linear-gradient(135deg, #ffffff, #f0f4f8);
+    padding: 24px 16px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    border-bottom: 1px solid #e5e7eb;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .hero-content {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .icon-wrap {
+    font-size: 32px;
+    width: 8px;
+    height: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 5% 5%);
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    color: white;
+  }
+
+  .hero-title {
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 700;
+    color: #0b3b86;
+    margin: 0;
+  }
+
+  .hero-sub {
+    font-size: clamp(14px, 2.5vw, 16px);
+    color: #374151;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .guest-name {
+    font-weight: 700;
+    background: linear-gradient(to right, #1a73e8, #4f46e5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  @media (max-width: 480px) {
+    .icon-wrap {
+      width: 48px;
+      height: 48px;
+      font-size: 24px;
+    }
+  }
+</style>

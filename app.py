@@ -1,10 +1,7 @@
-from flask import Flask, render_template,session, request, redirect, url_for
+from flask import Flask, render_template, session, request, redirect, url_for
 import mysql.connector
-from config import MYSQL_CONFIG
 from datetime import datetime
-import mysql.connector
 from config import MYSQL_CONFIG
-from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'Ini-Rahasia-Dan-Wajib-Tidak-Dibocorkan'
@@ -20,26 +17,21 @@ def admin_dashboard():
     conn = mysql.connector.connect(**MYSQL_CONFIG)
     cursor = conn.cursor(dictionary=True)
 
-    # Data utama
     cursor.execute("SELECT * FROM kode_presensi ORDER BY id ASC")
     data = cursor.fetchall()
 
-    # Statistik umum
     cursor.execute("SELECT COUNT(*) AS total FROM kode_presensi")
     total = cursor.fetchone()['total']
 
     cursor.execute("SELECT COUNT(*) AS hadir FROM kode_presensi WHERE sudah_dipakai = TRUE")
     hadir = cursor.fetchone()['hadir']
 
-    # Statistik unik pengguna
     cursor.execute("SELECT COUNT(DISTINCT dipakai_oleh) AS unik FROM kode_presensi WHERE dipakai_oleh IS NOT NULL")
     unik_pengguna = cursor.fetchone()['unik']
 
-    # Waktu terakhir presensi
     cursor.execute("SELECT MAX(waktu) AS terakhir FROM kode_presensi WHERE waktu IS NOT NULL")
     waktu_terakhir = cursor.fetchone()['terakhir']
 
-    # Jumlah kehadiran per jam
     cursor.execute("""
         SELECT HOUR(waktu) AS jam, COUNT(*) AS jumlah
         FROM kode_presensi
@@ -52,9 +44,15 @@ def admin_dashboard():
     cursor.close()
     conn.close()
 
-    return render_template('admin_dashboard.html', data=data, total=total, hadir=hadir, unik_pengguna=unik_pengguna, waktu_terakhir=waktu_terakhir, per_jam=per_jam)
-
-
+    return render_template(
+        'admin_dashboard.html',
+        data=data,
+        total=total,
+        hadir=hadir,
+        unik_pengguna=unik_pengguna,
+        waktu_terakhir=waktu_terakhir,
+        per_jam=per_jam
+    )
 
 
 @app.route('/admin/add', methods=['POST'])
@@ -74,10 +72,10 @@ def admin_add():
 def admin_edit(id):
     conn = mysql.connector.connect(**MYSQL_CONFIG)
     cursor = conn.cursor(dictionary=True)
-    
+
     if request.method == 'POST':
         kode = request.form.get('kode')
-        sudah = True if request.form.get('sudah_dipakai') == 'on' else False
+        sudah = request.form.get('sudah_dipakai') == 'on'
         dipakai = request.form.get('dipakai_oleh') or None
         waktu = request.form.get('waktu') or None
 
@@ -108,18 +106,17 @@ def admin_delete(id):
     cursor.close()
     conn.close()
     return redirect(url_for('admin_dashboard'))
+
 # ==================== ADMIN PANEL CLOSE ====================
 
 
+# ==================== HALAMAN LOGIN ====================
 
-
-
-# ================= ROUTE INDEX ===================
 @app.route('/')
 def index():
     return redirect(url_for('login'))
 
-# ================= ROUTE LOGIN ===================
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     message = ''
@@ -128,14 +125,14 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
 
-        # Jika admin hardcode
+        # Admin login (hardcoded)
         if username == 'mukti' and password == 'mukti12345':
             session['username'] = 'mukti'
             session['role'] = 'admin'
             return redirect(url_for('admin_dashboard'))
 
+        # User login via DB
         try:
-            # Cek user biasa dari database
             conn = mysql.connector.connect(**MYSQL_CONFIG)
             cursor = conn.cursor(dictionary=True)
             cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
@@ -146,88 +143,89 @@ def login():
             if user:
                 session['username'] = user['username']
                 session['role'] = user.get('role', 'user')
-                return redirect(url_for('presensi'))
+                return redirect(url_for('wedding_feed'))
             else:
                 message = "Username atau password salah."
-
         except Exception as e:
             message = "Gagal koneksi database."
 
     return render_template('login.html', message=message)
 
-# ================ ROUTE PRESENSI =================
-@app.route('/presensi', methods=['GET', 'POST'])
+
+# ==================== PRESENSI TAMU ====================
+
+@app.route('/presensi', methods=['POST'])
 def presensi():
     if 'username' not in session:
-        return redirect(url_for('login'))
+        return "Unauthorized", 401
 
     message = ''
     message_type = ''
     username = session['username']
+    kode_input = request.form.get('kode', '').strip()
 
-    if request.method == 'POST':
-        kode_input = request.form.get('kode', '').strip()
+    if not kode_input:
+        message = "Masukkan kode presensi."
+        message_type = 'error'
+    else:
+        try:
+            conn = mysql.connector.connect(**MYSQL_CONFIG)
+            cursor = conn.cursor(dictionary=True, buffered=True)
 
-        if not kode_input:
-            message = "Masukkan kode presensi."
-            message_type = 'error'
-        else:
-            try:
-                conn = mysql.connector.connect(**MYSQL_CONFIG)
-                cursor = conn.cursor(dictionary=True, buffered=True)
+            cursor.execute("SELECT * FROM kode_presensi WHERE dipakai_oleh = %s", (username,))
+            sudah_presensi = cursor.fetchone()
 
-                # 🔒 Cek apakah user sudah pernah presensi sebelumnya
-                cursor.execute("SELECT * FROM kode_presensi WHERE dipakai_oleh = %s", (username,))
-                sudah_presensi = cursor.fetchone()
+            if sudah_presensi:
+                message = f"Hai {username}, Anda sudah presensi dengan kode {sudah_presensi['kode']} 🙏"
+                message_type = 'warning'
+            else:
+                cursor.execute("SELECT * FROM kode_presensi WHERE kode = %s", (kode_input,))
+                kode = cursor.fetchone()
 
-                if sudah_presensi:
-                    message = f"Hai {username}, Anda sudah melakukan presensi dengan kode {sudah_presensi['kode']} 🙏"
+                if not kode:
+                    message = "Kode tidak ditemukan."
+                    message_type = 'error'
+                elif kode['sudah_dipakai']:
+                    message = f"Kode {kode['kode']} sudah digunakan oleh {kode['dipakai_oleh']} 🙏"
                     message_type = 'warning'
-
                 else:
-                    # 🔍 Cek apakah kode valid
-                    cursor.execute("SELECT * FROM kode_presensi WHERE kode = %s", (kode_input,))
-                    kode = cursor.fetchone()
+                    cursor.execute("""
+                        UPDATE kode_presensi 
+                        SET sudah_dipakai = TRUE, dipakai_oleh = %s, waktu = %s 
+                        WHERE id = %s
+                    """, (username, datetime.now(), kode['id']))
+                    conn.commit()
+                    message = f"Presensi berhasil 🎉 Kode {kode_input} tercatat untuk {username}."
+                    message_type = 'success'
 
-                    if not kode:
-                        message = "Kode tidak ditemukan."
-                        message_type = 'error'
-                    elif kode['sudah_dipakai']:
-                        message = f"Kode {kode['kode']} sudah digunakan oleh {kode['dipakai_oleh']} 🙏"
-                        message_type = 'warning'
-                    else:
-                        # ✅ Semua valid → simpan presensi
-                        cursor.execute("""
-                            UPDATE kode_presensi 
-                            SET sudah_dipakai = TRUE, dipakai_oleh = %s, waktu = %s 
-                            WHERE id = %s
-                        """, (username, datetime.now(), kode['id']))
-                        conn.commit()
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            message = f"Kesalahan sistem: {e}"
+            message_type = 'error'
 
-                        message = f"Presensi berhasil 🎉 Kode {kode_input} tercatat untuk {username}."
-                        message_type = 'success'
-
-                cursor.close()
-                conn.close()
-
-            except Exception as e:
-                message = f"Terjadi kesalahan saat presensi. ({e})"
-                message_type = 'error'
-
-    return render_template('kode_presensi.html', username=username, message=message, message_type=message_type)
+    return render_template('presensi.html', message=message, message_type=message_type)
 
 
-# ================ ROUTE LOGOUT ===================
+
+# ==================== WEDDING FEED ====================
+
+@app.route('/wedding-feed')
+def wedding_feed():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('base.html', username=session['username'])
+
+
+# ==================== LOGOUT ====================
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
 
+# ==================== RUN APP ====================
 
-app.run(
-    debug=True,
-    host='192.168.46.100',
-    port=443,
-    ssl_context=('cert.pem', 'key.pem')
-)
+if __name__ == '__main__':
+    app.run(debug=True)
